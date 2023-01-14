@@ -80,9 +80,10 @@ def get_color_from_score(score: int) -> str:
 
 def extract_coords_and_walk_score(walk_scores: list) -> dict:
     location_to_walk_score = {}
+
     for walk_score in walk_scores:
-        coords = (walk_score['snapped_coordinates']['latitude'], \
-            walk_score['snapped_coordinates']['longitude'])
+        coords = (walk_score['original_coordinates']['latitude'], \
+            walk_score['original_coordinates']['longitude'])
         score = walk_score['walk']['score']
         color = get_color_from_score(score)
 
@@ -95,10 +96,11 @@ def draw_and_save_map(location_to_walk_score: dict):
     for location, data in location_to_walk_score.items():
         folium.CircleMarker(location, 
                             radius=data["walk_score"] / 25, 
-                            color=data["color"], 
-                            popup="walk data",
+                            color=data["color"],
+                            opacity=.45,
+                            popup=str(location),
                             fill=True, 
-                            fill_opacity=0.7, 
+                            fill_opacity=0.3, 
                             fill_color=data["color"]).add_to(map)
     map.save('LA Walkability.html')
 
@@ -126,11 +128,16 @@ if __name__ == "__main__":
                                                 min_long=-118.496391,
                                                 max_long=-118.371628,
                                                 interval=.001)
+    print("Collecting", len(coords), "points")
 
     # This line calls the api and actually uses up our api requests, so uncomment only when you 
     # wanna gather new data.
     #collect_data(coords)
 
+    print("Processing points")
     walk_scores = load_walk_scores_from_json()
     location_to_walk_score = extract_coords_and_walk_score(walk_scores)
+
+    print("Drawing maps")
+    draw_and_save_map(location_to_walk_score)
     draw_and_save_heat_map(location_to_walk_score)
