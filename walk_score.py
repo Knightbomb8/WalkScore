@@ -1,17 +1,17 @@
-from walkscore import WalkScoreAPI
-import math
+from walkscore import WalkScoreAPI, LocationScore
 
 api_key = 'YOUR API KEY GOES HERE'
 
-def gather_walk_score(address: str) -> int:
-    walkscore_api = WalkScoreAPI(api_key = api_key)
-    return 1
 
-def get_distance(point_a, point_b):
-    return math.sqrt((point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2)
+class WalkScore:
+    def __init__(self):
+        self.api_key = self.load_api_key()
+        self.walkscore_api = WalkScoreAPI(api_key = self.api_key)
 
-if __name__ == "__main__":
-    point_a = (34.024382, -118.396126)
-    point_b = (34.023278, -118.398889)
-    print(get_distance(point_a, point_b))
-    address = "2109 Mary Way, Placentia Ca 92870"
+    def get_walk_score(self, latitude: int, longitude: int) -> LocationScore:
+        result = self.walkscore_api.get_score(latitude = latitude, longitude = longitude)
+        return result
+
+    def load_api_key(self) -> str:
+        with open('walk_score_api_key.txt') as key_file:
+            return key_file.readline()
